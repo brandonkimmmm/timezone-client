@@ -5,13 +5,18 @@
 </style>
 
 <script lang="ts">
-	export let name: string;
+	import { GlobalUser, User } from './stores';
+	import LoginForm from './components/LoginForm.svelte';
+
+	let user: User;
+
+	GlobalUser.subscribe((value) => user = value);
 </script>
 
 <main>
-	<h1>Hello {name}!</h1>
-	<p>
-		Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn
-		how to build Svelte apps.
-	</p>
+	{#if user.auth}
+		<p>Welcome back!</p>
+	{:else}
+		<LoginForm/>
+	{/if}
 </main>
