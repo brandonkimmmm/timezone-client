@@ -1,13 +1,33 @@
 <script lang='ts'>
-	import { GlobalUser } from '../stores';
+	import { User } from '../stores';
 
 	export let email: string = '';
 	export let password: string = '';
 
-	function login() {
-		console.log('API_URL');
-		alert(email);
-		alert(password);
+	async function login() {
+		const res = await fetch('API_URL/login', {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify({
+				email,
+				password
+			})
+		});
+
+		email = '';
+		password = '';
+
+		const data = await res.json();
+
+		if (!res.ok) {
+			alert(data.message);
+			return;
+		}
+
+		User.set(data.token, data.user);
+		localStorage.setItem('token', data.token);
+
+		alert('Welcome Back!');
 	}
 </script>
 

@@ -5,18 +5,24 @@
 </style>
 
 <script lang="ts">
-	import { GlobalUser, User } from './stores';
+	import { User, UserStore } from './stores';
 	import LoginForm from './components/LoginForm.svelte';
 
-	let user: User;
+	let user: UserStore;
 
-	GlobalUser.subscribe((value) => user = value);
+	User.subscribe((value) => user = value);
 </script>
 
 <main>
-	{#if user.auth}
-		<p>Welcome back!</p>
-	{:else}
-		<LoginForm/>
-	{/if}
+	{#await User.init()}
+		<div>Loading</div>
+	{:then}
+		{#if user.auth}
+			<div>{JSON.stringify(user.data)}</div>
+		{:else}
+			<LoginForm />
+		{/if}
+	{:catch error}
+		<p>Something went wrong</p>
+	{/await}
 </main>
