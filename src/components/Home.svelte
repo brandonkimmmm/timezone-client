@@ -55,6 +55,13 @@
 	}
 
 	let showAddModal = false;
+	let showEditModal = false;
+
+	let editData = {
+		id: 0,
+		name: '',
+		city: '',
+	};
 
 	let name = '';
 	let city = '';
@@ -112,6 +119,71 @@
 			alert(err instanceof Error ? err.message : 'Something went wrong');
 		}
 	}
+
+	const UPDATE_TIMEZONE = gql`
+		mutation ($id: Int!, $data: UpdateTimezoneData!) {
+			updateTimezone(id: $id, data: $data) {
+				id
+				name
+				city
+				timezone
+				offset
+			}
+		}
+	`;
+
+	const updateTimezoneMutation = mutation<{ updateTimezone: Timezone }>(UPDATE_TIMEZONE);
+
+	async function updateTimezone () {
+		try {
+			await updateTimezoneMutation({
+				variables: { id: editData.id, data: { name: editData.name, city: editData.city} },
+				update: (cache, { data }) => {
+					cache.modify({
+						fields: {
+							getTimezones(existingTimezones = []) {
+								return existingTimezones.map((timezone: Timezone) => {
+									if (timezone.id === data?.updateTimezone?.id) {
+										return data.updateTimezone;
+									} else {
+										return timezone;
+									}
+								})
+							}
+						}
+					})
+				}
+			})
+			closeEditModal();
+			alert('Timezone updated');
+		} catch (err) {
+			closeEditModal();
+			alert(err instanceof Error ? err.message : 'Something went wrong');
+		}
+	};
+
+	const deleteTimezone = async (id: number) => {
+		console.log('del');
+		console.log(id);
+	};
+
+	const openEditModal = (timezone: Timezone) => {
+		editData = {
+			id: timezone.id,
+			name: timezone.name,
+			city: timezone.city
+		}
+		showEditModal = true;
+	};
+
+	const closeEditModal = () => {
+		editData = {
+			id: 0,
+			name: '',
+			city: ''
+		}
+		showEditModal = false;
+	};
 </script>
 
 <div>
@@ -121,12 +193,42 @@
 	{:else if $timezones.error}
 		<div>Error</div>
 	{:else if $timezones.data}
-		<div class='flex flex-col'>
+		<div class='flex flex-col space-y-1'>
+			<div class='modal {showEditModal ? 'modal-open' : ''}'>
+				<div class='modal-box'>
+					<div class='p-10 card bg-base-200'>
+						<div class='form-control'>
+							<label for='name' class='label'>
+								<span class='label-text'>Name</span>
+							</label>
+							<input class='input' type='text' bind:value={editData.name} />
+							<label for='city' class='label'>
+								<span class='label-text'>City</span>
+							</label>
+							<input class='input' type='text' bind:value={editData.city} />
+							<div on:click|preventDefault={updateTimezone} class='btn btn-primary mt-4'>Update</div>
+							<div on:click='{() => closeEditModal()}' class='btn btn-error mt-4'>Cancel</div>
+						</div>
+					</div>
+				</div>
+			</div>
 			{#each $timezones.data.getTimezones as timezone}
-				<div class='flex flex-col'>
-					<div>{timezone.name}</div>
-					<div>{timezone.city}</div>
-					<div>{timezone.timezone}</div>
+				<div class='indicator w-full'>
+					<div class='indicator-item btn btn-error btn-xs btn-circle no-animation' on:click={() => deleteTimezone(timezone.id)}>X</div>
+					<div class='flex flex-col border rounded p-4 hover:opacity-30 cursor-pointer w-full' on:click={() => openEditModal(timezone)}>
+						<div class='flex flex-row space-x-4'>
+							<div class='font-bold'>Name:</div>
+							<div class='uppercase'>{timezone.name}</div>
+						</div>
+						<div class='flex flex-row space-x-4'>
+							<div class='font-bold'>City:</div>
+							<div class='uppercase'>{timezone.city}</div>
+						</div>
+						<div class='flex flex-row space-x-4'>
+							<div class='font-bold'>Timezone:</div>
+							<div>{timezone.timezone}</div>
+						</div>
+					</div>
 				</div>
 			{/each}
 			<!-- {#if $timezones.data.getTimezones.length < 5} -->

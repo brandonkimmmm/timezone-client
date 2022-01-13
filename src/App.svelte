@@ -22,7 +22,7 @@
 	User.subscribe((value) => user = value);
 </script>
 
-<main>
+<main class='p-4'>
 	{#await User.init()}
 		<div>Loading</div>
 	{:then}
