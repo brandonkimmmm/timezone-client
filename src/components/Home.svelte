@@ -1,6 +1,6 @@
 <script lang='ts'>
 	import { User } from '../stores';
-	import { ApolloClient, InMemoryCache, HttpLink, MutationUpdaterFunction } from '@apollo/client';
+	import { ApolloClient, InMemoryCache, HttpLink, MutationUpdaterFunction, Reference } from '@apollo/client';
 	import { setClient } from 'svelte-apollo';
 
 	function createApolloClient(authToken: string) {
@@ -141,10 +141,10 @@
 				update: (cache, { data }) => {
 					cache.modify({
 						fields: {
-							getTimezones(existingTimezones = []) {
-								return existingTimezones.map((timezone: Timezone) => {
-									if (timezone.id === data?.updateTimezone?.id) {
-										return data.updateTimezone;
+							getTimezones(existingTimezones = [], { readField }) {
+								return existingTimezones.map((timezone: Reference) => {
+									if (readField('id', timezone) === data?.updateTimezone?.id) {
+										return data?.updateTimezone;
 									} else {
 										return timezone;
 									}
@@ -162,9 +162,40 @@
 		}
 	};
 
+	const DELETE_TIMEZONE = gql`
+		mutation ($id: Int!) {
+			deleteTimezone(id: $id) {
+				id
+				name
+				city
+				timezone
+				offset
+			}
+		}
+	`;
+
+	const deleteTimezoneMutation = mutation<{ deleteTimezone: Timezone }>(DELETE_TIMEZONE);
+
 	const deleteTimezone = async (id: number) => {
-		console.log('del');
-		console.log(id);
+		try {
+			await deleteTimezoneMutation({
+				variables: { id },
+				update: (cache, { data }) => {
+					cache.modify({
+						fields: {
+							getTimezones(existingTimezones = [], { readField }) {
+								return existingTimezones.filter((timezone: Reference) => {
+									return readField('id', timezone) !== data?.deleteTimezone?.id;
+								})
+							}
+						}
+					})
+				}
+			})
+			alert('Timezone deleted');
+		} catch (err) {
+			alert(err instanceof Error ? err.message : 'Something went wrong');
+		}
 	};
 
 	const openEditModal = (timezone: Timezone) => {
