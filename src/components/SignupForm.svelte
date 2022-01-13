@@ -2,6 +2,7 @@
 	export let email: string = '';
 	export let password: string = '';
 	export let password_confirmation = '';
+	export let activeTab = 'signup';
 
 	async function signup() {
 		try {
@@ -21,6 +22,7 @@
 
 			email = '';
 			password = '';
+			password_confirmation = '';
 
 			const data = await res.json();
 
@@ -29,9 +31,12 @@
 			}
 
 			alert('Successful!');
+
+			activeTab='login';
 		} catch (err) {
 			email = '';
 			password = '';
+			password_confirmation = '';
 			alert(err instanceof Error ? err.message : 'Something went wrong');
 		}
 	}

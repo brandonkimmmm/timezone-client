@@ -41,7 +41,7 @@
 			{#if activeTab === 'login'}
 				<LoginForm />
 			{:else if activeTab === 'signup'}
-				<SignupForm />
+				<SignupForm bind:activeTab />
 			{/if}
 		{/if}
 	{:catch error}
