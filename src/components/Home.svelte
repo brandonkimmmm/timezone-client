@@ -262,7 +262,7 @@
 					</div>
 				</div>
 			{/each}
-			<!-- {#if $timezones.data.getTimezones.length < 5} -->
+			{#if $timezones.data.getTimezones.length < 5}
 				<div class='btn btn-success' on:click='{() => showAddModal = true}'>Add</div>
 				<div class='modal {showAddModal ? 'modal-open' : ''}'>
 					<div class='modal-box'>
@@ -286,7 +286,7 @@
 						</div>
 					</div>
 				</div>
-			<!-- {/if} -->
+			{/if}
 		</div>
 	{/if}
 </div>
