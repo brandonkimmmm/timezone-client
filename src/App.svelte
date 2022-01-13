@@ -13,6 +13,7 @@
 	import { User, UserStore } from './stores';
 	import LoginForm from './components/LoginForm.svelte';
 	import SignupForm from './components/SignupForm.svelte';
+	import Home from './components/Home.svelte';
 
 	let user: UserStore;
 
@@ -26,7 +27,7 @@
 		<div>Loading</div>
 	{:then}
 		{#if user.auth}
-			<div>{JSON.stringify(user.data)}</div>
+			<Home />
 		{:else}
 			<div class='tabs'>
 				<div

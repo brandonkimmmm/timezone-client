@@ -56,6 +56,10 @@ const createUserStore = () => {
 
 			set({ auth: true, data: data.user });
 			localStorage.setItem('token', data.token);
+		},
+		logout: () => {
+			set({ auth: false, data: {} });
+			localStorage.removeItem('token');
 		}
 	};
 };
