@@ -12,8 +12,11 @@
 <script lang='ts'>
 	import { User, UserStore } from './stores';
 	import LoginForm from './components/LoginForm.svelte';
+	import SignupForm from './components/SignupForm.svelte';
 
 	let user: UserStore;
+
+	let activeTab = 'login';
 
 	User.subscribe((value) => user = value);
 </script>
@@ -25,7 +28,21 @@
 		{#if user.auth}
 			<div>{JSON.stringify(user.data)}</div>
 		{:else}
-			<LoginForm />
+			<div class='tabs'>
+				<div
+					class='tab tab-lg tab-lifted {activeTab === 'login' ? 'tab-active' : ''}'
+					on:click='{() => activeTab = 'login'}'
+				>Login</div>
+				<div
+					class='tab tab-lg tab-lifted {activeTab === 'signup' ? 'tab-active' : ''}'
+					on:click='{() => activeTab = 'signup'}'
+				>Signup</div>
+			</div>
+			{#if activeTab === 'login'}
+				<LoginForm />
+			{:else if activeTab === 'signup'}
+				<SignupForm />
+			{/if}
 		{/if}
 	{:catch error}
 		<p>Something went wrong</p>

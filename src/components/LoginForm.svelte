@@ -5,35 +5,29 @@
 	export let password: string = '';
 
 	async function login() {
-		const res = await fetch('API_URL/login', {
-			method: 'POST',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify({
-				email,
-				password
-			})
-		});
-
-		email = '';
-		password = '';
-
-		const data = await res.json();
-
-		if (!res.ok) {
-			alert(data.message);
-			return;
+		try {
+			await User.login(email, password);
+			email = '';
+			password = '';
+			alert('Welcome back!');
+		} catch (err) {
+			email = '';
+			password = '';
+			alert(err instanceof Error ? err.message : 'Something went wrong');
 		}
-
-		User.set(data.token, data.user);
-		localStorage.setItem('token', data.token);
-
-		alert('Welcome Back!');
 	}
 </script>
 
-<h1>Form</h1>
-<form on:submit|preventDefault={login} class='bg-blue-400'>
-	<input class='bg-red-400' type='text' bind:value={email} />
-	<input class='bg-red-400' type='password' bind:value={password} />
-	<button>Login</button>
-</form>
+<div class='p-10 card bg-base-200'>
+	<div class='form-control'>
+		<label for='email' class='label'>
+			<span class='label-text'>Email</span>
+		</label>
+		<input class='input' type='text' bind:value={email} />
+		<label for='password' class='label'>
+			<span class='label-text'>Password</span>
+		</label>
+		<input class='input' type='password' bind:value={password} />
+		<div on:click|preventDefault={login} class='btn btn-primary mt-4'>Login</div>
+	</div>
+</div>

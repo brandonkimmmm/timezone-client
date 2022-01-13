@@ -11,6 +11,12 @@ interface UserData {
 	role?: string;
 }
 
+interface LoginRespose {
+	message: string;
+	token: string;
+	user: UserData;
+}
+
 const createUserStore = () => {
 	const { subscribe, set } = writable({ auth: false, data: {} });
 
@@ -32,8 +38,24 @@ const createUserStore = () => {
 				set({ auth: true, data });
 			}
 		},
-		set: (auth: boolean, data: UserData) => {
-			set({ auth, data });
+		login: async (email: string, password: string) => {
+			const res = await fetch('API_URL/login', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					email,
+					password
+				})
+			});
+
+			const data = (await res.json()) as LoginRespose;
+
+			if (!res.ok) {
+				throw new Error(data.message);
+			}
+
+			set({ auth: true, data: data.user });
+			localStorage.setItem('token', data.token);
 		}
 	};
 };
